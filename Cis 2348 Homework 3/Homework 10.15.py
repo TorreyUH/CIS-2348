@@ -1,3 +1,5 @@
+#Torrey Brett
+#1498427
 class Team:
     def __init__(self):
         self.team_name = 'none'
