@@ -1,3 +1,5 @@
+#Torrey Brett
+#1498427
 class ItemToPurchase:
     def __init__(self):
         # attributes
