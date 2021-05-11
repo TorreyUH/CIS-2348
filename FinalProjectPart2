@@ -1,0 +1,245 @@
+# Torrey Brett
+# PSID 1498427
+
+import csv  # import file to read and write csv files
+from _ast import Lambda  # Needed to utilize lambda
+from datetime import datetime  # Needed to have the recent day and time imported into the program
+
+
+class Inven_Out:  # class with methods to write new csv files from the required input files
+    def __init__(self, item_list):
+        self.item_list = item_list
+
+    def entire(self=None):  # csv file is created for the full inventory sorted per project instructions
+        with open('C:/Users/Johnny Blaze/Documents/CIS 2348/Project_Files/FullInventory.csv', 'w') as file:
+            # writeable file created
+            items = self.item_list  # assigns the item as items
+            keys = sorted(items.keys(), key=lambda x: items[x]['Manufacturer'])  # sorts the list into list keys
+            for item in keys:  # used to iterate through the item within the keys sort
+                id = item  # assignment of id to item
+                man_name = items[item]['Manufacturer']  # assignment of manufacturer name to list item
+                item_type = items[item]['item_type']  # assignment of item type to list item
+                price = items[item]['price']  # assignment of price to list item
+                service_date = items[item]['service_date']  # assignment of service date to list item
+                damaged = items[item]['damaged']  # assignment of a potentially damaged item to list item
+                file.write('{}, {}, {}, {}, {}, {}\n'.format(id, man_name, item_type, price, service_date, damaged))
+
+    def type_inventory(self):  # inventory type class
+        items = self.item_list  # assigns listed items as items
+        types = []  # empty list creation
+        keys = sorted(items.keys())  # sorted the keys
+        for item in items:  # iterates through the item with items
+            item_type = items[item]['item_type']  # assigns the item type to the item list
+            if item_type not in types:  # checks if the item type is within the list
+                types.append(item_type)  # appends the new item to the list
+        for type in types:  # iterates through the list within the types list
+            file_name = type.capitalize() + 'Inventory.csv'
+        with open('C:/Users/Johnny Blaze/Documents/CIS 2348/Project_Files/Inventory.csv', 'w') as file:
+            # csv file is created for the  inventory sorted per project instructions
+            for item in keys:  # iterates an item in each keys
+                id = item  # assigns the item type to the item list
+                man_name = items[item]['Manufacturer']  # assignment of manufacturer name to list item
+                price = items[item]['price']  # assignment of price to list item
+                service_date = items[item]['service_date']  # assignment of service date to list item
+                damaged = items[item]['damaged']  # assignment of a potentially damaged item to list item
+                item_type = items[item]['item_type']  # assigns the item type to the item list
+                if type == item_type:
+                    file.write('{}, {}, {}, {}, {}\n'.format(id, man_name, price, service_date, damaged))
+
+    def past_service_date(self):  # past service date class
+        items = self.item_list  # assigns listed items as items
+        keys = sorted(items.keys(), key=lambda x: datetime.strptime(items[x]['service_date'], "%m/%d/%Y").date(),
+                      reverse=True)
+        with open('C:/Users/Johnny Blaze/Documents/CIS 2348/Project_Files/PastServiceDateInventory.csv', 'w') as file:
+            # csv file is created for the past service sorted per project instructions
+            for item in keys:
+                id = item  # assigns the item type to the item list
+                man_name = items[item]['Manufacturer']  # assignment of manufacturer name to list item
+                item_type = items[item]['item_type']  # assigns the item type to the item list
+                price = items[item]['price']  # assignment of price to list item
+                service_date = items[item]['service_date']  # assignment of service date to list item
+                damaged = items[item]['damaged']  # assignment of a potentially damaged item to list item
+                today = datetime.now().date()  # utilizes the import to have the date and time of
+                service_expiration = datetime.strptime(service_date, "%m/%d/%Y").date()  # makes the date into a string
+                expired = service_expiration < today  # compares the string date of today to the service expiration date
+                if expired:  # if the item is expired
+                    file.write('{}, {}, {}, {}, {}, {}\n'.format(id, man_name, item_type, price, service_date, damaged))
+                    # used to write the new lines into the csv files
+
+    def damaged_item(self):  # damaged item  class
+        items = self.item_list
+        keys = sorted(items.keys(), key=lambda x: items[x]['price'], reverse=True)
+        with open('C:/Users/Johnny Blaze/Documents/CIS 2348/Project_Files/DamagedInventory.csv', 'w') as file:
+            # csv file is created for the damaged inventory sorted per project instructions
+            for item in keys:  # iterate through each item within the keys sort
+                id = item  # assigns the item type to the item list
+                man_name = items[item]['Manufacturer']  # assignment of manufacturer name to list item
+                item_type = items[item]['item_type']  # assigns the item type to the item list
+                price = items[item]['price']  # assignment of price to list item
+                service_date = items[item]['service_date']  # assignment of service date to list item
+                damaged = items[item]['damaged']  # assignment of a potentially damaged item to list item
+                if damaged:
+                    file.write('{}, {}, {}, {}, {}\n'.format(id, man_name, item_type, price, service_date))
+                    # used to write the new lines into the csv files
+
+
+if __name__ == '__main__':
+    items = {}  # empty dictionary for the items
+    files = ['ManufacturerList.csv', 'PriceList.csv', 'ServiceDatesList.csv']  # sets the names into the files and
+    # will only use the files of the like name
+    for file in files:  # for each file in the list
+        with open(file, 'r') as csv_file:  # open the file and allow it to be read
+            csv_reader = csv.reader(csv_file, delimiter=',')  # reads the csv file and uses the , as a separator or
+            # delimiter
+            for line in csv_reader:  # for every line in the file
+                item_id = line[0]  # ID is the first or 0 element in the line
+                if file == files[0]:  # file one
+                    items[item_id] = {}  # creates a dictionary
+                    man_name = line[1]
+                    item_type = line[2]
+                    damaged = line[3]
+                    items[item_id]['Manufacturer'] = man_name.strip()  # first element
+                    items[item_id]['item_type'] = item_type.strip()  # second element
+                    items[item_id]['damaged'] = damaged  # third element
+                elif file == files[1]:
+                    price = line[1]  # second element
+                    items[item_id]['price'] = price  # sets the price variable
+                elif file == files[2]:
+                    service_date = line[1]  # second element in line
+                    items[item_id]['service_date'] = service_date
+    inventory = Inven_Out(items)  # inventory assigned to class
+    inventory.entire()  # calls defined function
+    inventory.type_inventory()  # calls defined function
+    inventory.past_service_date()  # calls defined function
+    inventory.damaged_item()  # calls defined function
+    types = []
+    manufacturers = []
+    for item in items:
+        checked_manufacturer = items[item]['Manufacturer']
+        checked_type = items[item]['item_type']
+        if checked_manufacturer not in types:
+            manufacturers.append(checked_manufacturer)
+        if checked_type not in types:
+            types.append(checked_type)
+
+item_dict = {}  # empty dictionary creation
+
+files_list = ['ManufacturerList.csv', 'PriceList.csv', 'ServiceDatesList.csv']  # assigns name of the files
+# to a list to use files of the same name
+for file in files_list:  # for every file in file list dictionary
+    with open(file, 'r') as csv_file:  # allow read permission for each file
+        csv_reader = csv.reader(csv_file, delimiter=',')  # utilize ',' as the separator or delimiter
+        for line in csv_reader:  # for each line in the above file
+            item_id = line[0]  # recognize ID is in the initial 0 location of the dictionary
+            if file == files_list[0]:  # first file
+                item_dict[item_id] = {}  # dictionary made for ID
+                manufacturer = line[1]  # recognize manufacturer is in the 1 location of the dictionary
+                type_name = line[2]  # recognize the item type is in the 2 location of the dictionary
+                damage = line[3]  # recognize damage is in the 3 location of the dictionary
+                item_dict[item_id][
+                    'manufacturer'] = manufacturer.strip()  # delete spaces found in the manufacturer name
+                item_dict[item_id][
+                    'type_name'] = type_name.strip()  # deletes spaces found in the item type
+                item_dict[item_id]['damage'] = damage  # sets damage element as a variable
+            elif file == files_list[1]:  # second file
+                price = line[1]  # recognize price is in the 1 element location
+                item_dict[item_id]['price'] = price  # sets the price element as a variable
+            elif file == files_list[2]:  # third file
+                past_date = line[1]  # recognize old date is in the 1 element location
+                item_dict[item_id]['past_date'] = past_date  # assigns the past_date as the second element in the line
+
+type_list = []  # list created for type
+manufacturers = []  # list created for manufacturers name
+for item in item_dict:  # iterate each item in the dictionary
+    check_man_name = item_dict[item]['manufacturer']  # set manufacturer name element to check object
+    check_item_type = item_dict[item]['type_name']  # set item type element to check object
+    if check_man_name not in manufacturer:  # if not in manufacturers name
+        manufacturers.append(check_man_name)  # add it, or append to the list
+    if check_item_type not in type_list:  # if not in type
+        type_list.append(check_item_type)  # add it, or append it to the list
+
+user_input = None  # begin to accept user input
+while user_input != 'q':  # loop until user wants to quit
+    print("Enter a manufacturer name and item type or enter 'q' to quit:")  # ask user to enter their input
+    print("\tExample - (Apple phone)")  # show the user an example of proper input
+    user_input = input()  # variable to store the user input
+    if user_input == 'q':  # if statement for when the user wants to quit
+        break  # break to quit thw loop if initialized
+    else:  # other user input
+        user_man_name = None
+        user_item_type = None
+        user_input = user_input.split()
+        wrong_input = False
+        for word in user_input:  # check words in user input
+            if word in manufacturers:
+                if user_man_name:  # if user input does not equal element in the list then the boolean -
+                    # value is true making it invalid.
+                    wrong_input = True  # then the boolean value is true making it invalid.
+                    print("No such item in inventory")  # error message to the user
+                else:  # input is a match
+                    user_man_name = word  # sets the input to manufacturers list
+            elif word in type_list:
+                if user_item_type:  # if user input does not equal element in the list then the boolean -
+                    # value is true making it invalid.
+                    wrong_input = True  # then the boolean value is true making it invalid.
+                    print("No such item in inventory")  # error message to the user
+                else:  # if the user's input matches
+                    user_item_type = word  # sets the input to manufacturers list
+        if not user_man_name or not user_item_type:  # user input is entered wrong
+            print("No such item in inventory")  # error message to the user
+        else:
+            keys = sorted(item_dict.keys(), key=lambda x: item_dict[x]['price'],
+                          reverse=True)  # sorts the keys from greatest to least
+            match = []  # empty list creation
+            similar = {}  # empty dictionary creation
+
+            for item in keys:  # iterate each item in the dictionary
+                if item_dict[item]['type_name'] == user_item_type:  # if the dict type matches
+                    today = datetime.now().date()  # retrieves today's date
+                    past_date = item_dict[item]['past_date']  # retrieve info from the dictionary
+                    service_old = datetime.strptime(past_date, "%m/%d/%Y").date()  # change element type to a string
+                    old = service_old < today  # date comparison
+                    if item_dict[item]['manufacturer'] == user_man_name:  # if user input the same as manufac name
+                        if not old and not item_dict[item]['damage']:  # ensures item is not outdated or damaged
+                            match.append((item, item_dict[item]))  # add to the list
+                    else:  # if manu name is not the same as the input
+                        if not old and not item_dict[item]['damage']:  # ensures item is not outdated or damaged
+                            similar[item] = item_dict[item]  # compares item to other items
+
+            if match:  # if there is a match
+                item = match[0]  # item is assigned the first element of the match list
+                item_id = item[0]  # item_id is assigned the first element of the item list
+                manufacturer = item[1][
+                    'manufacturer']  # manufacturer is assigned the second element of the item list with manufacturer
+                type_name = item[1][
+                    'type_name']  # item type is assigned the second element of the item list with item type
+                price = item[1]['price']  # price is assigned the second element of the item list with price
+                print("Your item is: {}, {}, {}, ${}\n".format(item_id, manufacturer, type_name,
+                                                               price))  # outputs in specific format
+                if similar:  # if the items are similar
+                    matched_price = price  # # new variable matched price assigned to price
+                    item_closest = None  # initialize the variable
+                    price_closest = None  # initialize the variable
+                    for item in similar:  # iterates items in the dictionary
+                        if price_closest is None:  # if no item with closest price
+                            item_closest = similar[item]  # closest item the same as similar
+                            price_closest = abs(int(matched_price) - int(similar[item]['price']))
+                            item_id = item  # item set to item id variable
+                            manufacturer = similar[item]['manufacturer']  # assigns the manufacturer -
+                            # to the manufacturer variable
+                            type_name = similar[item]['type_name']  # set type variable to type
+                            price = similar[item]['price']  # set price variable to price
+                            continue
+                        price_diff = abs(int(matched_price) - int(
+                            similar[item]['price']))  # minus 2 in absolute value format
+                        if price_diff < price_closest:  # price comparison for price difference and closest price
+                            item_closest = item
+                            price_closest = price_diff
+                            item_id = item  #
+                            manufacturer = similar[item]['manufacturer']
+                            type_name = similar[item]['type_name']
+                            price = similar[item]['price']
+                    print("You may also consider: {}, {}, {}, ${}\n".format(item_id, manufacturer, type_name, price))
+            else:
+                print(
+                    "No such item in inventory. Item is either nonexistent, damaged, or past its service date.\n")
